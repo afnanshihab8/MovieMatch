@@ -1,0 +1,25 @@
+<h1>Welcome, {{ profile.user.username }}</h1>
+
+<h2>Your Watchlist</h2>
+<ul>
+    {% for movie in profile.watchlist.all %}
+        <li>
+            {{ movie.title }}
+            <a href="{% url 'remove_from_watchlist' movie.id %}">Remove</a>
+        </li>
+    {% empty %}
+        <li>No movies in your watchlist</li>
+    {% endfor %}
+</ul>
+
+<h2>Your Favorites</h2>
+<ul>
+    {% for movie in profile.favorites.all %}
+        <li>
+            {{ movie.title }}
+            <a href="{% url 'remove_from_favorites' movie.id %}">Remove</a>
+        </li>
+    {% empty %}
+        <li>No favorite movies yet</li>
+    {% endfor %}
+</ul>

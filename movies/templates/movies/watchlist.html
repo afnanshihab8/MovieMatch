@@ -1,0 +1,11 @@
+<h2>My Watchlist</h2>
+<ul>
+    {% for movie in movies %}
+        <li>
+            <img src="https://image.tmdb.org/t/p/w200{{ movie.poster_path }}" alt="{{ movie.title }}">
+            <a href="{% url 'movie_detail' movie.id %}">{{ movie.title }}</a>
+        </li>
+    {% empty %}
+        <li>No movies in your watchlist.</li>
+    {% endfor %}
+</ul>

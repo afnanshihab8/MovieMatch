@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1 class="text-center">MovieMatch!</h1>
+
+<div class="row">
+    {% for movie in movies %}
+    <div class="col-md-3">
+        <div class="movie-card">
+            <a href="{% url 'movie_detail' movie.id %}">
+                <img src="{{ movie.poster_url }}" alt="{{ movie.title }}">
+                <h5>{{ movie.title }}</h5>
+            </a>
+
+            {% if movie.id in watchlist_ids %}
+                <p class="text-success">✅ In Watchlist</p>
+                <form method="post" action="{% url 'toggle_watchlist' movie.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-danger btn-sm" type="submit">Remove</button>
+                </form>
+            {% else %}
+                <form method="post" action="{% url 'toggle_watchlist' movie.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-primary btn-sm" type="submit">Add to Watchlist</button>
+                </form>
+            {% endif %}
+
+            {% if movie.id in favorite_ids %}
+                <p class="text-danger">❤️ In Favorites</p>
+                <form method="post" action="{% url 'toggle_favorites' movie.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-warning btn-sm" type="submit">Remove</button>
+                </form>
+            {% else %}
+                <form method="post" action="{% url 'toggle_favorites' movie.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-warning btn-sm" type="submit">Add to Favorites</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Watchlist -->
+<div id="watchlist" class="mt-5" style="display: none;">
+    <h2>Your Watchlist</h2>
+    <div class="row">
+        {% for movie in watchlist_movies %}
+        <div class="col-md-3">
+            <div class="movie-card">
+                <img src="{{ movie.poster_url }}" alt="{{ movie.title }}">
+                <h5>{{ movie.title }}</h5>
+                <form method="post" action="{% url 'toggle_watchlist' movie.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-danger btn-sm" type="submit">Remove</button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <p>Your watchlist is empty.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Favorites -->
+<div id="favorites" class="mt-5" style="display: none;">
+    <h2>Your Favorites</h2>
+    <div class="row">
+        {% for movie in favorite_movies %}
+        <div class="col-md-3">
+            <div class="movie-card">
+                <img src="{{ movie.poster_url }}" alt="{{ movie.title }}">
+                <h5>{{ movie.title }}</h5>
+                <form method="post" action="{% url 'toggle_favorites' movie.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-warning btn-sm" type="submit">Remove</button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <p>Your favorites list is empty.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
