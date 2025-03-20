@@ -15,9 +15,8 @@
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto">
                 {% if user.is_authenticated %}
-                    <li class="nav-item"><a class="nav-link" href="#" onclick="toggleSection('watchlist')">Watchlist</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" onclick="toggleSection('favorites')">Favorites</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+                    <li><a href="{% url 'my_movies' %}">My Movies</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
                 {% else %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'signup' %}">Sign Up</a></li>

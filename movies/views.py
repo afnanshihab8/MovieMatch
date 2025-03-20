@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.http import HttpResponse
 import requests
-from .models import Movie
+from .models import Movie, Watchlist, FavoriteMovie
 from django.contrib.auth.forms import UserCreationForm 
 from django.contrib.auth import get_user_model, login 
 
@@ -88,39 +88,101 @@ class MovieDetailView(View):
 
 @login_required
 def toggle_watchlist(request, movie_id):
-    if "watchlist" not in request.session:
-        request.session["watchlist"] = []
+    movie_data = get_tmdb_data(f"movie/{movie_id}")  # Fetch movie details
+    if not movie_data:
+        return HttpResponse("Movie details not available", status=500)
 
-    if movie_id in request.session["watchlist"]:
-        request.session["watchlist"].remove(movie_id)
-    else:
-        request.session["watchlist"].append(movie_id)
+    movie, created = Movie.objects.get_or_create(
+        id=movie_data["id"],
+        defaults={"title": movie_data["title"], "poster_path": movie_data.get("poster_path", "")}
+    )
 
-    request.session.modified = True
-    return redirect(request.META.get('HTTP_REFERER', 'home'))  
+    watchlist_entry, created = Watchlist.objects.get_or_create(user=request.user, movie=movie)
+
+    if not created:  # If already in watchlist, remove it
+        watchlist_entry.delete()
+
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
+
 
 @login_required
 def toggle_favorites(request, movie_id):
-    if "favorites" not in request.session:
-        request.session["favorites"] = []
+    movie_data = get_tmdb_data(f"movie/{movie_id}")
+    if not movie_data:
+        return HttpResponse("Movie details not available", status=500)
 
-    if movie_id in request.session["favorites"]:
-        request.session["favorites"].remove(movie_id)
-    else:
-        request.session["favorites"].append(movie_id)
+    movie, created = Movie.objects.get_or_create(
+        id=movie_data["id"],
+        defaults={"title": movie_data["title"], "poster_path": movie_data.get("poster_path", "")}
+    )
 
-    request.session.modified = True
-    return redirect(request.META.get('HTTP_REFERER', 'home'))  
+    favorite_entry, created = FavoriteMovie.objects.get_or_create(user=request.user, movie=movie)
+
+    if not created:  # If already in favorites, remove it
+        favorite_entry.delete()
+
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
+
 
 @login_required
 def watchlist_view(request):
-    movie_ids = request.session.get("watchlist", [])
-    movies = [get_tmdb_data(f"movie/{movie_id}") for movie_id in movie_ids]
-    return render(request, 'movies/watchlist.html', {'movies': movies})
+    watchlist_entries = Watchlist.objects.filter(user=request.user)
+    BASE_POSTER_URL = "https://image.tmdb.org/t/p/w500"
+
+    watchlist_movies = [
+        {
+            'title': entry.movie.title,
+            'poster_url': f"{BASE_POSTER_URL}{entry.movie.poster_path}" if entry.movie.poster_path else None,
+            'id': entry.movie.id
+        }
+        for entry in watchlist_entries
+    ]
+
+    return render(request, 'movies/watchlist.html', {'movies': watchlist_movies})
 
 @login_required
 def favorite_view(request):
-    movie_ids = request.session.get("favorites", [])
-    movies = [get_tmdb_data(f"movie/{movie_id}") for movie_id in movie_ids]
-    return render(request, 'movies/favorites.html', {'movies': movies})
+    favorite_entries = FavoriteMovie.objects.filter(user=request.user)
+    BASE_POSTER_URL = "https://image.tmdb.org/t/p/w500"
 
+    favorite_movies = [
+        {
+            'title': entry.movie.title,
+            'poster_url': f"{BASE_POSTER_URL}{entry.movie.poster_path}" if entry.movie.poster_path else None,
+            'id': entry.movie.id
+        }
+        for entry in favorite_entries
+    ]
+
+    return render(request, 'movies/favorites.html', {'movies': favorite_movies})
+
+@login_required
+
+def watchlist_favorites_view(request):
+    watchlist_entries = Watchlist.objects.filter(user=request.user)
+    favorite_entries = FavoriteMovie.objects.filter(user=request.user)
+
+    BASE_POSTER_URL = "https://image.tmdb.org/t/p/w500"
+
+    watchlist_movies = [
+        {
+            'title': entry.movie.title,
+            'poster_url': f"{BASE_POSTER_URL}{entry.movie.poster_path}" if entry.movie.poster_path else None,
+            'id': entry.movie.id
+        }
+        for entry in watchlist_entries
+    ]
+
+    favorite_movies = [
+        {
+            'title': entry.movie.title,
+            'poster_url': f"{BASE_POSTER_URL}{entry.movie.poster_path}" if entry.movie.poster_path else None,
+            'id': entry.movie.id
+        }
+        for entry in favorite_entries
+    ]
+
+    return render(request, "movies/mymovies.html", {
+        'watchlist': watchlist_movies,
+        'favorites': favorite_movies
+    })

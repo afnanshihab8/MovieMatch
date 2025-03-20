@@ -7,6 +7,7 @@ class Movie(models.Model):
     release_date = models.DateField(null=True, blank=True)
     genre = models.CharField(max_length=100, blank=True)
     description = models.TextField(blank=True)
+    poster_path = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.title
@@ -16,6 +17,8 @@ class Profile(models.Model):
     bio = models.TextField(blank=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True)
 
+        
+
     def __str__(self):
         return self.user.username
     
@@ -23,8 +26,11 @@ class Watchlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="watchlist_entries")
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     added_at = models.DateTimeField(auto_now_add=True)
+    poster_url = models.URLField()
 
 class FavoriteMovie(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="favorite_entries")
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     added_at = models.DateTimeField(auto_now_add=True)
+     
+
