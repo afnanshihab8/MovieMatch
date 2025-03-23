@@ -6,6 +6,12 @@ import requests
 from .models import Movie, Watchlist, FavoriteMovie
 from django.contrib.auth.forms import UserCreationForm 
 from django.contrib.auth import get_user_model, login 
+from .recommendation_engine import recommend_movies_based_on_words
+from .forms import WordInputForm
+from django.shortcuts import render
+from .recommendation_engine import recommend_movies_based_on_words
+from .models import Movie  
+
 
 
 def get_tmdb_data(endpoint, params=None):
@@ -186,3 +192,15 @@ def watchlist_favorites_view(request):
         'watchlist': watchlist_movies,
         'favorites': favorite_movies
     })
+
+def recommend_by_words(request):
+    if request.method == 'POST':
+        keywords = request.POST.get('keywords', '').split()  
+        if len(keywords) != 3:
+            return render(request, 'recommend_results.html', {'error': 'Please enter exactly three words.'})
+        
+        recommended_movies = recommend_movies_based_on_words(keywords)  # Fetch recommendations
+        
+        return render(request, 'movies/recommend_results.html', {'movies': recommended_movies, 'keywords': keywords})
+    
+    return render(request, 'movies/recommend_results.html', {'error': 'Invalid request.'})

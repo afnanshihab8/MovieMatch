@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import HomePageView, MovieDetailView, toggle_watchlist, toggle_favorites, profile,  watchlist_view, favorite_view, watchlist_favorites_view
+from .views import HomePageView, MovieDetailView, toggle_watchlist, toggle_favorites, profile,  watchlist_view, favorite_view, watchlist_favorites_view , recommend_by_words
 
 urlpatterns = [
     path('profile/', profile, name='profile'),
@@ -10,5 +10,6 @@ urlpatterns = [
     path('watchlist/', watchlist_view, name='watchlist'),
     path('favorites/', favorite_view, name='favorites'),
     path('my-movies/', watchlist_favorites_view, name='my_movies'),
+    path("recommend-by-words/", recommend_by_words, name="recommend_by_words"),
 
 ]

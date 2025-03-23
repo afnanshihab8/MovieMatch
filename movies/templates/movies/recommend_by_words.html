@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Movie Recommendation Based on Your Words</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Find Movies</button>
+</form>
+
+{% if recommendations %}
+    <h3>Recommended Movies</h3>
+    <div class="movie-container">
+        {% for movie in recommendations %}
+            <div class="movie">
+                {% if movie.poster_url %}
+                    <img src="{{ movie.poster_url }}" alt="{{ movie.title }}">
+                {% else %}
+                    <p>No poster available</p>
+                {% endif %}
+                <h4>{{ movie.title }}</h4>
+                <p>{{ movie.description }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<style>
+    .movie-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .movie {
+        width: 200px;
+        text-align: center;
+    }
+    img {
+        width: 100%;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}

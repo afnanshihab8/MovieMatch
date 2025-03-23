@@ -4,6 +4,14 @@
 {% block content %}
 <h1 class="text-center">MovieMatch!</h1>
 
+
+<form method="POST" action="{% url 'recommend_by_words' %}" class="text-center mb-4">
+    {% csrf_token %}
+    <label for="keywords"><strong>Enter three words:</strong></label>
+    <input type="text" name="keywords" id="keywords" placeholder="e.g., thrilling, emotional, intense" required>
+    <button class="btn btn-success btn-sm" type="submit">Get Recommendations</button>
+</form>
+
 <div class="row">
     {% for movie in movies %}
     <div class="col-md-3">
@@ -84,4 +92,5 @@
         {% endfor %}
     </div>
 </div>
+
 {% endblock %}
